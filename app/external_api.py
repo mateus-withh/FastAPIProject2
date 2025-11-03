@@ -36,7 +36,7 @@ class ExternalAPI:
                         )
                     )
                 return users
-        except Exception as e:
+        except Exception:  # REMOVER 'as e' que não é usado
             # Fallback para dados mockados em caso de erro
             return [
                 User(id=1, name="John Doe", email="john@example.com", age=30),

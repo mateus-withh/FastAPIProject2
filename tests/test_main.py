@@ -2,20 +2,19 @@ import pytest
 from unittest.mock import patch, AsyncMock
 from app.models import User
 
+
 class TestUserEndpoints:
     """Testes para os endpoints de usuários"""
-    
+
     def test_get_all_users_success(self, client, sample_users_data):
         """Teste de sucesso para listar todos os usuários"""
         # Criar objetos User a partir dos dados de fixture
-        mock_users = [
-            User(**user_data) for user_data in sample_users_data
-        ]
-        
+        mock_users = [User(**user_data) for user_data in sample_users_data]
+
         # Mock da função externa
-        with patch('app.main.external_api.get_all_users', return_value=mock_users):
+        with patch("app.main.external_api.get_all_users", return_value=mock_users):
             response = client.get("/users")
-            
+
             assert response.status_code == 200
             data = response.json()
             assert len(data) == 2
@@ -25,9 +24,11 @@ class TestUserEndpoints:
     def test_get_all_users_failure(self, client):
         """Teste de falha para listar todos os usuários"""
         # Mock para simular erro
-        with patch('app.main.external_api.get_all_users', side_effect=Exception("API Error")):
+        with patch(
+            "app.main.external_api.get_all_users", side_effect=Exception("API Error")
+        ):
             response = client.get("/users")
-            
+
             assert response.status_code == 500
             data = response.json()
             assert "detail" in data
@@ -36,10 +37,10 @@ class TestUserEndpoints:
     def test_get_user_by_id_success(self, client, sample_user_data):
         """Teste de sucesso para buscar usuário por ID"""
         mock_user = User(**sample_user_data)
-        
-        with patch('app.main.external_api.get_user_by_id', return_value=mock_user):
+
+        with patch("app.main.external_api.get_user_by_id", return_value=mock_user):
             response = client.get("/users/1")
-            
+
             assert response.status_code == 200
             data = response.json()
             assert data["id"] == 1
@@ -48,9 +49,9 @@ class TestUserEndpoints:
 
     def test_get_user_by_id_not_found(self, client):
         """Teste de falha para buscar usuário por ID (não encontrado)"""
-        with patch('app.main.external_api.get_user_by_id', return_value=None):
+        with patch("app.main.external_api.get_user_by_id", return_value=None):
             response = client.get("/users/999")
-            
+
             assert response.status_code == 404
             data = response.json()
             assert "detail" in data
@@ -58,9 +59,12 @@ class TestUserEndpoints:
 
     def test_get_user_by_id_failure(self, client):
         """Teste de falha para buscar usuário por ID (erro interno)"""
-        with patch('app.main.external_api.get_user_by_id', side_effect=Exception("Internal Error")):
+        with patch(
+            "app.main.external_api.get_user_by_id",
+            side_effect=Exception("Internal Error"),
+        ):
             response = client.get("/users/1")
-            
+
             assert response.status_code == 500
             data = response.json()
             assert "detail" in data
@@ -68,10 +72,10 @@ class TestUserEndpoints:
     def test_create_user_success(self, client, new_user_data):
         """Teste de sucesso para criar novo usuário"""
         created_user = User(id=101, **new_user_data)
-        
-        with patch('app.main.external_api.create_user', return_value=created_user):
+
+        with patch("app.main.external_api.create_user", return_value=created_user):
             response = client.post("/users", json=new_user_data)
-            
+
             assert response.status_code == 200
             data = response.json()
             assert data["id"] == 101
@@ -81,9 +85,12 @@ class TestUserEndpoints:
 
     def test_create_user_failure(self, client, new_user_data):
         """Teste de falha para criar novo usuário"""
-        with patch('app.main.external_api.create_user', side_effect=Exception("Creation failed")):
+        with patch(
+            "app.main.external_api.create_user",
+            side_effect=Exception("Creation failed"),
+        ):
             response = client.post("/users", json=new_user_data)
-            
+
             assert response.status_code == 500
             data = response.json()
             assert "detail" in data
